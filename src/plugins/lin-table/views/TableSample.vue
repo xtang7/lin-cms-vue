@@ -41,6 +41,7 @@
       <el-table
         :data="tableData"
         @row-dblclick="rowClick"
+        @expand-change="expandChange"
         v-loading="loading"
         id="out-table'">
         <!-- 展示摘要 -->
@@ -151,11 +152,11 @@
 </template>
 
 <script>
-import LinButton from '@/base/button/lin-button'
-import LinSearch from '@/base/search/lin-search'
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
 import Sortable from 'sortablejs'
+import LinButton from '@/base/button/lin-button'
+import LinSearch from '@/base/search/lin-search'
 import { tableColumn } from './data'
 import movie from '../models/movie'
 
@@ -201,7 +202,6 @@ export default {
     this.filterTableColumn = tableColumn.filter(
       v => this.checkList.indexOf(v.label) > -1,
     )
-
   },
   mounted() {
     // 开启拖拽功能
@@ -249,6 +249,10 @@ export default {
           message: '推荐成功',
         })
       }
+    },
+
+    expandChange(row, expandedRows) {
+      console.log(row, expandedRows)
     },
 
     // 单元格编辑
@@ -305,21 +309,21 @@ export default {
     drag() {
       const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
       this.sortable = Sortable.create(el, {
-        setData: function (dataTransfer) {
+        setData(dataTransfer) {
           dataTransfer.setData('Text', '')
         },
-        onEnd: evt => {
+        onEnd: (evt) => {
           const copy = [...this.tableData]
           this.tableData[evt.oldIndex] = copy[evt.newIndex]
           this.tableData[evt.newIndex] = copy[evt.oldIndex]
-        }
+        },
       })
     },
 
     // 导出excel
-    exportExcel(fileName = "sheet") {
+    exportExcel(fileName = 'sheet') {
       const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
-      var writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      const writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
       try {
         FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.xlsx`)
       } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
