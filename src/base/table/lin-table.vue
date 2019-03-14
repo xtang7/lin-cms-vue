@@ -141,7 +141,7 @@ export default {
       default: false,
     },
   },
-  components: {
+  components: { // eslint-disable-line
     LinButton,
   },
   data() {
@@ -198,7 +198,7 @@ export default {
       this.$emit('handleCurrentChange', { val, oldVal })
     },
     // 单击某一行
-    rowClick(row, column, event) {
+    rowClick(row, column, event) { // eslint-disable-line
       // 选中-多选
       if (!this.oldKey.includes(row.key)) {
         this.oldKey.push(row.key)
@@ -228,10 +228,10 @@ export default {
       this.oldVal = []
       this.currentPage = page
       this.selectedTableData = JSON.parse(sessionStorage.getItem('selectedTableData'))
-      this.currentData = this.tableData.filter((item, index) => (index >= (this.currentPage - 1) * this.pagination.pageSize) && (index < (this.currentPage * this.pagination.pageSize)))
+      this.currentData = this.tableData.filter((item, index) => (index >= (this.currentPage - 1) * this.pagination.pageSize) && (index < (this.currentPage * this.pagination.pageSize))) // eslint-disable-line
       this.$emit('currentChange', page)
       // 已选中的数据打勾
-      this.selectedTableData.forEach((item, index) => {
+      this.selectedTableData.forEach((item) => {
         for (let i = 0; i < this.currentData.length; i++) {
           if (this.currentData[i].key === item.key) {
             // 切换页码重新计算oldVal
@@ -278,7 +278,7 @@ export default {
   },
   watch: {
     fixedLeftList: {
-      handler(val, oldVal) {
+      handler(val, oldVal) { // eslint-disable-line
         this.filterTableColumn.map((item, index) => {
           if (this.fixedLeftList.indexOf(item.label) > -1) {
             this.$set(this.filterTableColumn[index], 'fixed', 'left')
@@ -292,7 +292,7 @@ export default {
       immediate: true,
     },
     fixedRightList: {
-      handler(val, oldVal) {
+      handler(val, oldVal) { // eslint-disable-line
         this.filterTableColumn.map((item, index) => {
           if (this.fixedRightList.indexOf(item.label) > -1) {
             this.$set(this.filterTableColumn[index], 'fixed', 'right')
@@ -306,29 +306,29 @@ export default {
       immediate: true,
     },
     customColumn: {
-      handler(val, oldVal) {
+      handler(val, oldVal) { // eslint-disable-line
         if (val.length > 1) {
           this.filterTableColumn = this.tableColumn.filter(
             v => val.indexOf(v.label) > -1,
           )
-        } else {}
+        }
       },
       deep: true,
     },
     tableData: {
-      handler(val, oldVal) {
+      handler(val, oldVal) { // eslint-disable-line
         // 传了分页配置
         if (this.pagination && this.pagination.pageSize) {
-          this.currentData = this.tableData.filter((item, index) => index < this.pagination.pageSize)
+          this.currentData = this.tableData.filter((item, index) => index < this.pagination.pageSize)  // eslint-disable-line
         } else {
           this.currentData = this.tableData
         }
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
     tableColumn: {
-      handler(val, oldVal) {
+      handler(val, oldVal) { // eslint-disable-line
         // 如果一开始没有传要展示的列 就默认全展示
         if (this.customColumn.length > 1) {
           this.filterTableColumn = this.tableColumn.filter(
@@ -339,8 +339,8 @@ export default {
         }
       },
       deep: true,
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 }
 </script>
