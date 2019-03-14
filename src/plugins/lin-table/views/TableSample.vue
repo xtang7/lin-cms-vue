@@ -152,8 +152,14 @@
 </template>
 
 <script>
+<<<<<<< HEAD
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
+=======
+import LinButton from '@/base/button/lin-button'
+import LinSearch from '@/base/search/lin-search'
+
+>>>>>>> ac4b760d2d473990696665a886f6ae487c93debe
 import Sortable from 'sortablejs'
 import LinButton from '@/base/button/lin-button'
 import LinSearch from '@/base/search/lin-search'
@@ -320,6 +326,7 @@ export default {
       })
     },
 
+<<<<<<< HEAD
     // 导出excel
     exportExcel(fileName = 'sheet') {
       const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
@@ -329,6 +336,17 @@ export default {
       } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
       return writeTable
     },
+=======
+    // // 导出excel
+    // exportExcel(fileName = "sheet") {
+    //   const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
+    //   var writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
+    //   try {
+    //     FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.xlsx`)
+    //   } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
+    //   return writeTable
+    // },
+>>>>>>> ac4b760d2d473990696665a886f6ae487c93debe
   },
 
   watch: {
