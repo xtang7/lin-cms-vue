@@ -13,7 +13,7 @@
         </div>
         <lin-1px :addWidth="60"></lin-1px>
       </sticky-top>
-      <el-dialog  top="5vh" width="60%" :visible.sync="dialogTableVisible">
+      <el-dialog top="5vh" width="60%" :visible.sync="dialogTableVisible">
         <!-- 定制列 -->
         <span>选择要展示的列:</span>
         <el-checkbox-group v-model="checkList" @change="handleChange" class="m-20">
@@ -60,6 +60,7 @@
         </el-select>
       </div>
       <el-table
+        :row-class-name="rowClassName"
         :data="tableData"
         @row-dblclick="rowClick"
         @expand-change="expandChange"
@@ -220,6 +221,7 @@ export default {
       fixedRightList: [],
       // 拖拽相关
       enableDrag: false,
+      rowClassName: '', // 行样式
       // 数据导出相关
       options: [{
         value: 'excel',
@@ -382,8 +384,13 @@ export default {
 
     // 拖拽
     drag() {
+      this.loading = true
+      setTimeout( () => {
+        this.loading = false
+      },1000)
       this.enableDrag = true
       const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
+      this.rowClassName = 'rowClassName' // 设置行样式，添加移动手势
       this.sortable = Sortable.create(el, {
         setData(dataTransfer) {
           dataTransfer.setData('Text', '')
@@ -489,7 +496,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    margin-top:30px;
+    margin-top: 30px;
   }
 
   .sort-input {
@@ -577,5 +584,9 @@ export default {
 .tableSample .el-table .cell {
   display: inline-block;
   width: 100%;
+}
+
+.tableSample .rowClassName {
+  cursor: move !important;
 }
 </style>
