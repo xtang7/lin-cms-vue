@@ -9,6 +9,6 @@
   position: sticky;
   top: 0;
   background: #fff;
-  z-index: 1;
+  z-index: 100;
 }
 </style>

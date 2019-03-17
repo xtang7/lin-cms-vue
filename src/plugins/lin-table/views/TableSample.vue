@@ -1,43 +1,64 @@
 <template>
   <div>
     <!-- 列表页面 -->
-    <div class="container">
-      <div class="header">
-        <div class="header-left">
-          <p class="title">豆瓣电影TOP250</p>
+    <div class="tableSample">
+      <sticky-top>
+        <div class="header">
+          <div class="header-left">
+            <p class="title">豆瓣电影TOP250</p>
+          </div>
+          <div class="header-right">
+            <lin-search @query="onQueryChange" placeholder="请输入电影名" />
+          </div>
         </div>
-        <div class="header-right">
-          <lin-search @query="onQueryChange" placeholder="请输入电影名" />
+        <lin-1px :addWidth="60"></lin-1px>
+      </sticky-top>
+      <el-dialog title="列操作" top="5vh" width="60%" :visible.sync="dialogTableVisible">
+        <!-- 定制列 -->
+        <span>选择要展示的列:</span>
+        <el-checkbox-group v-model="checkList" @change="handleChange" class="m-20">
+          <el-checkbox
+            :disabled="item === '电影名'"
+            :label="item"
+            v-for="item in tempCheckList"
+            :key="item" />
+        </el-checkbox-group>
+        <!-- 固定列 -->
+        <span>选择固定在左侧的列:</span>
+        <el-checkbox-group v-model="fixedLeftList" class="m-20">
+          <el-checkbox
+            :disabled="fixedRightList.indexOf(item) > -1"
+            :label="item"
+            v-for="item in checkList"
+            :key="item" />
+        </el-checkbox-group>
+        <span>选择固定在右侧的列:</span>
+        <el-checkbox-group v-model="fixedRightList" class="m-20">
+          <el-checkbox
+            :disabled="fixedLeftList.indexOf(item) > -1"
+            :label="item"
+            v-for="item in checkList"
+            :key="item" />
+        </el-checkbox-group>
+      </el-dialog>
+      <div class="top-operate">
+        <div>
+          <el-button type="primary" @click="dialogTableVisible=!dialogTableVisible">列操作</el-button>
+          <el-button type="primary" :disabled="enableDrag" @click="drag()">开启拖拽</el-button>
         </div>
+        <el-select
+          style="width: 151px;"
+          v-model="value"
+          @change="selectChange"
+          placeholder="导出数据">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </div>
-      <lin-1px :addWidth="60"></lin-1px>
-      <!-- 定制列 -->
-      <span>选择要展示的列:</span>
-      <el-checkbox-group v-model="checkList" @change="handleChange" class="m-20">
-        <el-checkbox
-          :disabled="item === '电影名'"
-          :label="item"
-          v-for="item in tempCheckList"
-          :key="item" />
-      </el-checkbox-group>
-      <!-- 固定列 -->
-      <span>选择固定在左侧的列:</span>
-      <el-checkbox-group v-model="fixedLeftList" class="m-20">
-        <el-checkbox
-          :disabled="fixedRightList.indexOf(item) > -1"
-          :label="item"
-          v-for="item in checkList"
-          :key="item" />
-      </el-checkbox-group>
-      <span>选择固定在右侧的列:</span>
-      <el-checkbox-group v-model="fixedRightList" class="m-20">
-        <el-checkbox
-          :disabled="fixedLeftList.indexOf(item) > -1"
-          :label="item"
-          v-for="item in checkList"
-          :key="item" />
-      </el-checkbox-group>
-      <!-- <el-button @click="exportExcel()">数据导出</el-button> -->
       <el-table
         :data="tableData"
         @row-dblclick="rowClick"
@@ -85,29 +106,41 @@
             :fixed="item.fixed ? item.fixed : false"
             :width="item.width ? item.width : ''">
           </el-table-column>
+          <!-- 排序 评分 -->
+          <el-table-column
+            label="评分"
+            :prop="item.prop"
+            sortable
+            v-bind:key="item.label"
+            :fixed="item.fixed ? item.fixed : false"
+            :width="item.width ? item.width : ''"
+            v-if="item.label === '评分'">
+          </el-table-column>
           <!-- 单元格编辑 -->
           <el-table-column
             v-bind:key="item.label"
             label="备注"
-            width="200"
-            :show-overflow-tooltip="true"
+            :width="item.width"
+            :show-overflow-tooltip="showTooltip"
             v-if="item.label === '备注'">
             <template slot-scope="props">
-              <div class="table-edit">
-                <div v-if="!props.row.editFlag" @click="handleEdit(props.row)">
+              <div v-if="!props.row.editFlag" class="table-edit">
+                <div @click="handleEdit(props.row)">
                   {{ props.row.remark }}
                 </div>
-                <div v-if="props.row.editFlag" class="cell-edit-input">
-                  <el-input v-model="props.row.remark" placeholder=""></el-input>
-                </div>
-                <div v-if="!props.row.editFlag" class="cell-icon" @click="handleCellEdit(props.row)">
+                <div class="cell-icon" @click="handleCellEdit(props.row)">
                   <i class="el-icon-edit"></i>
                 </div>
-                <div v-if="props.row.editFlag" class="cell-icon" @click="handleCellSave(props.row)">
-                  <i class="el-icon-circle-check-outline"></i>
-                </div>
-                <div v-if="props.row.editFlag" class="cell-icon" @click="handleCellCancel(props.row)">
-                  <i class="el-icon-circle-close-outline"></i>
+              </div>
+              <div v-else class="table-edit">
+                <el-input v-model="props.row.remark" placeholder=""></el-input>
+                <div class="cell-icon-edit">
+                  <div class="cell-save" @click="handleCellSave(props.row)">
+                    <i class="el-icon-circle-check-outline"></i>
+                  </div>
+                  <div class="cell-cancel" @click="handleCellCancel(props.row)">
+                    <i class="el-icon-circle-close-outline"></i>
+                  </div>
                 </div>
               </div>
             </template>
@@ -152,10 +185,12 @@
 </template>
 
 <script>
-
 import Sortable from 'sortablejs'
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
 import LinButton from '@/base/button/lin-button'
 import LinSearch from '@/base/search/lin-search'
+import StickyTop from '@/base/sticky-top/sticky-top'
 import { tableColumn } from './data'
 import movie from '../models/movie'
 
@@ -163,6 +198,7 @@ export default {
   components: {
     LinButton,
     LinSearch,
+    StickyTop
   },
   data() {
     return {
@@ -176,11 +212,26 @@ export default {
       // 分页相关
       refreshPagination: true, // 页数增加的时候，因为缓存的缘故，需要刷新Pagination组件
       currentPage: 1, // 默认获取第一页的数据
-      pageCount: 20, // 每页20条数据
+      pageCount: 10, // 每页10条数据
       total_nums: 180, // 分组内的用户总数
       // 固定列相关
+      dialogTableVisible: false,
       fixedLeftList: [],
       fixedRightList: [],
+      // 拖拽相关
+      enableDrag: false,
+      // 数据导出相关
+      options: [{
+        value: 'excel',
+        label: '导出 Excel'
+      }, {
+        value: 'csv',
+        label: '导出 Csv'
+      }],
+      value: '',
+      // 单元格编辑相关
+      editRow: 0,
+      showTooltip: true
     }
   },
   computed: {
@@ -189,7 +240,7 @@ export default {
   created() {
     // 获取数据
     this._getTableData((this.currentPage - 1) * this.pageCount, this.pageCount)
-
+    this.tableColumn = tableColumn
     // 操作栏
     this.operate = [
       { name: '编辑', func: 'handleEdit', type: 'edit' },
@@ -201,10 +252,6 @@ export default {
     this.filterTableColumn = tableColumn.filter(
       v => this.checkList.indexOf(v.label) > -1,
     )
-  },
-  mounted() {
-    // 开启拖拽功能
-    this.drag()
   },
   methods: {
     // 获取数据
@@ -229,6 +276,9 @@ export default {
         v => this.checkList.indexOf(v.label) > -1,
       )
     },
+    showRowOperateModal() {
+
+    },
 
     // 变更排序
     handleSort(val, rowData) {
@@ -241,12 +291,16 @@ export default {
 
     // 推荐
     handleRecommend(val, rowData) {
+      this.loading = true
       console.log(val, rowData)
       if (val) {
-        this.$message({
-          type: 'success',
-          message: '推荐成功',
-        })
+        setTimeout(() => {
+          this.loading = false
+          this.$message({
+            type: 'success',
+            message: '推荐成功',
+          })
+        }, 1000)
       }
     },
 
@@ -257,22 +311,37 @@ export default {
     // 单元格编辑
     handleCellEdit(row) {
       row.editFlag = true // eslint-disable-line
+      this.showTooltip = false
+      this.$set(this.filterTableColumn[7], 'width', 330)
       this.tempEditRemark = row.remark
+      this.editRow++
     },
     handleCellSave(row) {
-      row.editFlag = false // eslint-disable-line
+      this.loading = true
+      setTimeout(() => {
+        this.loading = false
+        row.editFlag = false // eslint-disable-line
+        this.editRow--
+        this.$message({
+          type: 'success',
+          message: '修改成功',
+        })
+      }, 1000)
     },
     handleCellCancel(row) {
       row.editFlag = false // eslint-disable-line
       row.remark = this.tempEditRemark // eslint-disable-line
+      this.editRow--
     },
 
     // 切换分页
     async handleCurrentChange(val) {
       this.currentPage = val
       this.loading = true
-      this._getTableData((this.currentPage - 1) * this.pageCount, this.pageCount)
-      this.loading = false
+      setTimeout(() => {
+        this._getTableData((this.currentPage - 1) * this.pageCount, this.pageCount)
+        this.loading = false
+      }, 1000)
     },
 
     // 操作列
@@ -282,6 +351,7 @@ export default {
       methods[func](self, index, row)
     },
     handleEdit(self, index, row) {
+      self.handleCellEdit(row)
       console.log(index, row)
     },
     handleDelete(self, index, val) {
@@ -290,7 +360,13 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
-      }).then(async () => {})
+      }).then(async () => {
+        self.loading = true
+        setTimeout(() => {
+          self.tableData.splice(index, 1)
+          self.loading = false
+        }, 1000)
+      })
     },
 
     // 搜索
@@ -306,6 +382,7 @@ export default {
 
     // 拖拽
     drag() {
+      this.enableDrag = true
       const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
       this.sortable = Sortable.create(el, {
         setData(dataTransfer) {
@@ -319,15 +396,27 @@ export default {
       })
     },
 
-    // // 导出excel
-    // exportExcel(fileName = "sheet") {
-    //   const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
-    //   var writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
-    //   try {
-    //     FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.xlsx`)
-    //   } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
-    //   return writeTable
-    // },
+    selectChange(val) {
+      val === 'excel' ? this.exportExcel() : this.exportCsv()
+    },
+    // 导出excel
+    exportExcel(fileName = "sheet") {
+      const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
+      var writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      try {
+        FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.xlsx`)
+      } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
+      return writeTable
+    },
+    // 导出csv
+    exportCsv(fileName = "sheet") {
+      const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
+      var writeTable = XLSX.write(targetTable, { bookType: 'csv', bookSST: true, type: 'array' })
+      try {
+        FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.csv`)
+      } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
+      return writeTable
+    },
   },
 
   watch: {
@@ -354,6 +443,11 @@ export default {
       })
       console.log(this.filterTableColumn)
     },
+    editRow() {
+      if (this.filterTableColumn[7]) {
+        this.editRow === 0 ? this.$set(this.filterTableColumn[7], 'width', 200) : null
+      }
+    }
   },
 }
 </script>
@@ -361,7 +455,7 @@ export default {
 <style lang="scss" scoped>
 @import "~assets/styles/variable.scss";
 
-.container {
+.tableSample {
   padding: 0 30px 30px;
 
   .header {
@@ -390,6 +484,14 @@ export default {
     }
   }
 
+  .top-operate {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    margin-top:30px;
+  }
+
   .sort-input {
     width: 50px;
     background: none;
@@ -400,18 +502,33 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 135px;
-  }
+    width: 100%;
 
-  .cell-edit-input .el-input,
-  .el-input__inner {
-    width: 125px;
-  }
+    .cell-icon {
+      cursor: pointer;
+      color: #3963bc;
+      font-size: 16px;
+    }
 
-  .cell-icon {
-    cursor: pointer;
-    color: #3963bc;
-    margin-left: 5px;
+    .cell-icon-edit {
+      display: flex;
+      margin-left: 20px;
+      width: 50px;
+      justify-content: space-between;
+
+      .cell-cancel {
+        cursor: pointer;
+        color: #3963bc;
+        font-size: 16px;
+      }
+
+      .cell-save {
+        cursor: pointer;
+        color: #3963bc;
+        font-size: 16px;
+        margin-right: -20px;
+      }
+    }
   }
 
   .m-20 {
@@ -457,7 +574,8 @@ export default {
 }
 </style>
 <style>
-.el-table .cell {
+.tableSample .el-table .cell {
   display: inline-block;
+  width: 100%;
 }
 </style>

@@ -63,6 +63,8 @@
 </template>
 
 <script>
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
 import LinButton from '../button/lin-button'
 
 export default {
@@ -146,7 +148,6 @@ export default {
   },
   data() {
     return {
-      tempEditRemark: '', // 缓存单元格内容
       filterTableColumn: [], // 定制展示的列
       currentPage: 1, // 当前选中页
       currentData: [], // 每次切换页码的时候要给table传入不同的数据
@@ -274,6 +275,15 @@ export default {
 
       sessionStorage.setItem('selectedTableData', JSON.stringify(this.selectedTableData))
       this.oldVal = [...val]
+    },
+    // 导出excel
+    exportExcel(fileName = "sheet") {
+      const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
+      var writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      try {
+        FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.xlsx`)
+      } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
+      return writeTable
     },
   },
   watch: {
