@@ -13,7 +13,7 @@
         </div>
         <lin-1px :addWidth="60"></lin-1px>
       </sticky-top>
-      <el-dialog title="列操作" top="5vh" width="60%" :visible.sync="dialogTableVisible">
+      <el-dialog  top="5vh" width="60%" :visible.sync="dialogTableVisible">
         <!-- 定制列 -->
         <span>选择要展示的列:</span>
         <el-checkbox-group v-model="checkList" @change="handleChange" class="m-20">
@@ -27,17 +27,17 @@
         <span>选择固定在左侧的列:</span>
         <el-checkbox-group v-model="fixedLeftList" class="m-20">
           <el-checkbox
-            :disabled="fixedRightList.indexOf(item) > -1"
+            :disabled="fixedRightList.indexOf(item) > -1 || checkList.indexOf(item) ===  -1"
             :label="item"
-            v-for="item in checkList"
+            v-for="item in tempCheckList"
             :key="item" />
         </el-checkbox-group>
         <span>选择固定在右侧的列:</span>
         <el-checkbox-group v-model="fixedRightList" class="m-20">
           <el-checkbox
-            :disabled="fixedLeftList.indexOf(item) > -1"
+            :disabled="fixedLeftList.indexOf(item) > -1 || checkList.indexOf(item) === -1"
             :label="item"
-            v-for="item in checkList"
+            v-for="item in tempCheckList"
             :key="item" />
         </el-checkbox-group>
       </el-dialog>
