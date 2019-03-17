@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="lin-table">
     <el-table
       border
       ref="linTable"
@@ -9,6 +9,7 @@
       :element-loading-text="loadingText"
       :element-loading-spinner="loadingIcon"
       :element-loading-background="loadingBG"
+      :row-class-name="rowClassName"
       @current-change="handleCurrentChange"
       @selection-change="handleSelectionChange"
       @select-all="selectAll"
@@ -156,6 +157,7 @@ export default {
       oldVal: [], // 上一次选中的数据
       oldKey: [], // 上一次选中数据的key
       currentIndex: 1, // 当前索引，切换页面的时候需要重新计算
+      rowClassName: '' // 行样式
     }
   },
   created() {},
@@ -276,12 +278,48 @@ export default {
       sessionStorage.setItem('selectedTableData', JSON.stringify(this.selectedTableData))
       this.oldVal = [...val]
     },
+    // 拖拽
+    setDrag() {
+      const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
+      let oldIndex
+      let newIndex
+      this.rowClassName = 'rowClassName' // 设置行样式，添加移动手势
+      this.sortable = Sortable.create(el, {
+        setData: function (dataTransfer) {
+          dataTransfer.setData('Text', '')
+        },
+        onEnd: evt => {
+          const dragData = [...this.currentData]
+          let oldIndex
+          let newIndex
+          if (this.pagination) {
+            oldIndex = evt.oldIndex * this.currentPage
+            newIndex = evt.newIndex * this.currentPage
+          } else {
+            oldIndex = evt.oldIndex
+            newIndex = evt.newIndex
+          }
+          dragData[oldIndex] = this.currentData[newIndex]
+          dragData[newIndex] = this.currentData[oldIndex]
+          this.$emit('getDragData', { dragData, oldIndex, newIndex })
+        }
+      })
+    },
     // 导出excel
     exportExcel(fileName = "sheet") {
       const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
       var writeTable = XLSX.write(targetTable, { bookType: 'xlsx', bookSST: true, type: 'array' })
       try {
         FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.xlsx`)
+      } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
+      return writeTable
+    },
+    // 导出csv
+    exportCsv(fileName = "sheet") {
+      const targetTable = XLSX.utils.table_to_book(document.querySelectorAll('.el-table__body-wrapper > table')[0])
+      var writeTable = XLSX.write(targetTable, { bookType: 'csv', bookSST: true, type: 'array' })
+      try {
+        FileSaver.saveAs(new Blob([writeTable], { type: 'application/octet-stream' }), `${fileName}.csv`)
       } catch (e) { if (typeof console !== 'undefined') console.log(e, writeTable) }
       return writeTable
     },
@@ -329,7 +367,7 @@ export default {
       handler(val, oldVal) { // eslint-disable-line
         // 传了分页配置
         if (this.pagination && this.pagination.pageSize) {
-          this.currentData = this.tableData.filter((item, index) => index < this.pagination.pageSize)  // eslint-disable-line
+          this.currentData = this.tableData.filter((item, index) => index < this.pagination.pageSize) // eslint-disable-line
         } else {
           this.currentData = this.tableData
         }
@@ -356,7 +394,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
+.lin-table {
   position: relative;
 }
 
@@ -389,5 +427,11 @@ export default {
   justify-content: flex-end;
   margin-right: -10px;
   margin-top: 15px;
+}
+</style>
+
+<style>
+.lin-table .rowClassName {
+  cursor:move !important;
 }
 </style>
