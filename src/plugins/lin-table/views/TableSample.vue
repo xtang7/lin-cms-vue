@@ -44,7 +44,7 @@
       <div class="top-operate">
         <div>
           <el-button type="primary" @click="dialogTableVisible=!dialogTableVisible">列操作</el-button>
-          <el-button type="primary" :disabled="enableDrag" @click="drag()">开启拖拽</el-button>
+          <!-- <el-button type="primary" :disabled="enableDrag" @click="drag()">开启拖拽</el-button> -->
         </div>
         <el-select
           style="width: 151px;"
@@ -301,6 +301,14 @@ export default {
           this.$message({
             type: 'success',
             message: '推荐成功',
+          })
+        }, 1000)
+      } else {
+         setTimeout(() => {
+          this.loading = false
+          this.$message({
+            type: 'success',
+            message: '取消推荐',
           })
         }, 1000)
       }
