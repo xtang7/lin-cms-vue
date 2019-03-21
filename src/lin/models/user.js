@@ -73,7 +73,8 @@ export default class User {
   /**
    * 刷新令牌
    */
-  static async getRefreshToken() {
+  static async getRefreshToken(response) {
+    response.config.params.onRefresh = true
     const res = await get('cms/user/refresh')
     saveAccessToken(res.access_token)
   }
