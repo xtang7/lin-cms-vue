@@ -9,73 +9,71 @@
 </template>
 <script>
 export default {
-  name: "LIcon",
+  name: 'LIcon',
   props: {
     name: {
       type: String,
-      default: ""
+      default: '',
     },
     color: {
       type: String,
-      default: ""
+      default: '',
     },
     width: {
       type: String,
-      default: "1.2em"
+      default: '1.2em',
     },
     height: {
       type: String,
-      default: "1.2em"
+      default: '1.2em',
     },
   },
-  data () {
+  data() {
     return {
-      buttonColor: '#fff'
+      buttonColor: '#fff',
     }
   },
   beforeMount() {
-    import("./iconfont.js").then(module => {});
+    import('./iconfont.js').then((module) => {})
   },
   mounted() {
-    this.setIconButtonColor();
+    this.setIconButtonColor()
   },
   methods: {
     setIconButtonColor() {
-      const type = this.$parent.type;
+      const { type } = this.$parent
       if (this.$parent.plain) {
         console.log(type)
         switch (type) {
-          case "primary":
-            this.buttonColor = "#3963BC";
-            break;
-          case "success":
-            this.buttonColor = "#34BFA3";
-            break;
-          case "danger":
-            this.buttonColor = "#F4516C";
-            break;
-          case "info":
-            this.buttonColor = "#C4C5D6";
-            break;
+          case 'primary':
+            this.buttonColor = '#3963BC'
+            break
+          case 'success':
+            this.buttonColor = '#34BFA3'
+            break
+          case 'danger':
+            this.buttonColor = '#F4516C'
+            break
+          case 'info':
+            this.buttonColor = '#C4C5D6'
+            break
           default:
-            this.buttonColor = "#3963BC";
+            this.buttonColor = '#3963BC'
         }
-      } else {
-        if (type === "default") {
-          this.buttonColor = "#3963BC";
-        }
+      } else if (type === 'default') {
+        this.buttonColor = '#3963BC'
       }
     },
     mouseover() {
       if (this.$parent.plain) {
-        this.buttonColor = "#fff";
+        this.buttonColor = '#fff'
       }
     },
     mouseout() {
-      this.setIconButtonColor();
-    }
-  }
-};
+      this.setIconButtonColor()
+    },
+  },
+}
 </script>
 <style lang="scss" scoped>
 .l-icon {

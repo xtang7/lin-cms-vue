@@ -188,27 +188,27 @@
 </template>
 
 <script>
-import Sortable from "sortablejs";
-import FileSaver from "file-saver";
-import XLSX from "xlsx";
-import LinButton from "@/base/button/lin-button";
-import LinSearch from "@/base/search/lin-search";
-import StickyTop from "@/base/sticky-top/sticky-top";
-import { tableColumn } from "./data";
-import movie from "../models/movie";
+import Sortable from 'sortablejs'
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
+import LinButton from '@/base/button/lin-button'
+import LinSearch from '@/base/search/lin-search'
+import StickyTop from '@/base/sticky-top/sticky-top'
+import { tableColumn } from './data'
+import movie from '../models/movie'
 
 export default {
   components: {
     LinButton,
     LinSearch,
-    StickyTop
+    StickyTop,
   },
   data() {
     return {
       tableData: [],
       loading: false,
       Hidden: true, // 默认隐藏自定义排序列
-      searchKeyword: "",
+      searchKeyword: '',
       // 定制列相关
       checkList: [],
       filterTableColumn: [],
@@ -223,245 +223,245 @@ export default {
       fixedRightList: [],
       // 拖拽相关
       enableDrag: false,
-      rowClassName: "", // 行样式
+      rowClassName: '', // 行样式
       // 数据导出相关
       options: [
         {
-          value: "excel",
-          label: "导出 Excel"
+          value: 'excel',
+          label: '导出 Excel',
         },
         {
-          value: "csv",
-          label: "导出 Csv"
-        }
+          value: 'csv',
+          label: '导出 Csv',
+        },
       ],
-      value: "",
+      value: '',
       // 单元格编辑相关
       editRow: 0,
-      showTooltip: true
-    };
+      showTooltip: true,
+    }
   },
   computed: {},
   created() {
     // 获取数据
-    this._getTableData((this.currentPage - 1) * this.pageCount, this.pageCount);
-    this.tableColumn = tableColumn;
+    this._getTableData((this.currentPage - 1) * this.pageCount, this.pageCount)
+    this.tableColumn = tableColumn
     // 操作栏
     this.operate = [
-      { name: "编辑", func: "handleEdit", type: "primary" },
-      { name: "删除", func: "handleDelete", type: "danger" }
-    ];
+      { name: '编辑', func: 'handleEdit', type: 'primary' },
+      { name: '删除', func: 'handleDelete', type: 'danger' },
+    ]
     // 定制列
-    this.tempCheckList = tableColumn.map(v => v.label).slice();
-    this.checkList = tableColumn.map(v => v.label);
+    this.tempCheckList = tableColumn.map(v => v.label).slice()
+    this.checkList = tableColumn.map(v => v.label)
     this.filterTableColumn = tableColumn.filter(
-      v => this.checkList.indexOf(v.label) > -1
-    );
+      v => this.checkList.indexOf(v.label) > -1,
+    )
   },
   methods: {
     // 获取数据
     _getTableData(start, count) {
-      const res = movie.getTop250(start, count);
-      res.map(item => {
-        const temp = item;
-        temp.remark = "这是一部不错的电影";
-        temp.editFlag = false;
-        return "";
-      });
-      this.tableData = [...res];
+      const res = movie.getTop250(start, count)
+      res.map((item) => {
+        const temp = item
+        temp.remark = '这是一部不错的电影'
+        temp.editFlag = false
+        return ''
+      })
+      this.tableData = [...res]
     },
 
     rowClick(val) {
-      console.log(val);
+      console.log(val)
     },
 
     // 定制列
     handleChange() {
       this.filterTableColumn = tableColumn.filter(
-        v => this.checkList.indexOf(v.label) > -1
-      );
+        v => this.checkList.indexOf(v.label) > -1,
+      )
     },
     showRowOperateModal() {},
 
     // 变更排序
     handleSort(val, rowData) {
-      console.log("rowData", rowData);
+      console.log('rowData', rowData)
       this.$message({
-        type: "success",
-        message: `排序已更改为：${val}`
-      });
+        type: 'success',
+        message: `排序已更改为：${val}`,
+      })
     },
 
     // 推荐
     handleRecommend(val, rowData) {
-      this.loading = true;
-      console.log(val, rowData);
+      this.loading = true
+      console.log(val, rowData)
       if (val) {
         setTimeout(() => {
-          this.loading = false;
+          this.loading = false
           this.$message({
-            type: "success",
-            message: "推荐成功"
-          });
-        }, 1000);
+            type: 'success',
+            message: '推荐成功',
+          })
+        }, 1000)
       } else {
         setTimeout(() => {
-          this.loading = false;
+          this.loading = false
           this.$message({
-            type: "success",
-            message: "取消推荐"
-          });
-        }, 1000);
+            type: 'success',
+            message: '取消推荐',
+          })
+        }, 1000)
       }
     },
 
     expandChange(row, expandedRows) {
-      console.log(row, expandedRows);
+      console.log(row, expandedRows)
     },
 
     // 单元格编辑
     handleCellEdit(row) {
       row.editFlag = true; // eslint-disable-line
-      this.showTooltip = false;
-      this.$set(this.filterTableColumn[7], "width", 330);
-      this.tempEditRemark = row.remark;
-      this.editRow++;
+      this.showTooltip = false
+      this.$set(this.filterTableColumn[7], 'width', 330)
+      this.tempEditRemark = row.remark
+      this.editRow++
     },
     handleCellSave(row) {
-      this.loading = true;
+      this.loading = true
       setTimeout(() => {
-        this.loading = false;
+        this.loading = false
         row.editFlag = false; // eslint-disable-line
-        this.editRow--;
+        this.editRow--
         this.$message({
-          type: "success",
-          message: "修改成功"
-        });
-      }, 1000);
+          type: 'success',
+          message: '修改成功',
+        })
+      }, 1000)
     },
     handleCellCancel(row) {
       row.editFlag = false; // eslint-disable-line
       row.remark = this.tempEditRemark; // eslint-disable-line
-      this.editRow--;
+      this.editRow--
     },
 
     // 切换分页
     async handleCurrentChange(val) {
-      this.currentPage = val;
-      this.loading = true;
+      this.currentPage = val
+      this.loading = true
       setTimeout(() => {
         this._getTableData(
           (this.currentPage - 1) * this.pageCount,
-          this.pageCount
-        );
-        this.loading = false;
-      }, 1000);
+          this.pageCount,
+        )
+        this.loading = false
+      }, 1000)
     },
 
     // 操作列
     buttonMethods(func, index, row) {
-      const self = this;
-      const { methods } = this.$options;
-      methods[func](self, index, row);
+      const self = this
+      const { methods } = this.$options
+      methods[func](self, index, row)
     },
     handleEdit(self, index, row) {
-      self.handleCellEdit(row);
-      console.log(index, row);
+      self.handleCellEdit(row)
+      console.log(index, row)
     },
     handleDelete(self, index, val) {
-      console.log(val);
+      console.log(val)
       self
-        .$confirm("此操作将永久删除该信息, 是否继续?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+        .$confirm('此操作将永久删除该信息, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
         })
         .then(async () => {
-          self.loading = true;
+          self.loading = true
           setTimeout(() => {
-            self.tableData.splice(index, 1);
-            self.loading = false;
-          }, 1000);
-        });
+            self.tableData.splice(index, 1)
+            self.loading = false
+          }, 1000)
+        })
     },
 
     // 搜索
     onQueryChange(query) {
-      this.searchKeyword = query.trim();
+      this.searchKeyword = query.trim()
       if (!query) {
-        this._getTableData(0, 20);
-        return;
+        this._getTableData(0, 20)
+        return
       }
       // 处理带空格的情况
-      this.tableData = movie.getDataByQuery(this.searchKeyword);
+      this.tableData = movie.getDataByQuery(this.searchKeyword)
     },
 
     // 拖拽
     drag() {
-      this.loading = true;
+      this.loading = true
       setTimeout(() => {
-        this.loading = false;
-      }, 1000);
-      this.enableDrag = true;
+        this.loading = false
+      }, 1000)
+      this.enableDrag = true
       const el = document.querySelectorAll(
-        ".el-table__body-wrapper > table > tbody"
-      )[0];
-      this.rowClassName = "rowClassName"; // 设置行样式，添加移动手势
+        '.el-table__body-wrapper > table > tbody',
+      )[0]
+      this.rowClassName = 'rowClassName' // 设置行样式，添加移动手势
       this.sortable = Sortable.create(el, {
         setData(dataTransfer) {
-          dataTransfer.setData("Text", "");
+          dataTransfer.setData('Text', '')
         },
-        onEnd: evt => {
-          const copy = [...this.tableData];
-          this.tableData[evt.oldIndex] = copy[evt.newIndex];
-          this.tableData[evt.newIndex] = copy[evt.oldIndex];
-        }
-      });
+        onEnd: (evt) => {
+          const copy = [...this.tableData]
+          this.tableData[evt.oldIndex] = copy[evt.newIndex]
+          this.tableData[evt.newIndex] = copy[evt.oldIndex]
+        },
+      })
     },
 
     selectChange(val) {
-      val === "excel" ? this.exportExcel() : this.exportCsv();
+      val === 'excel' ? this.exportExcel() : this.exportCsv()
     },
     // 导出excel
-    exportExcel(fileName = "sheet") {
+    exportExcel(fileName = 'sheet') {
       const targetTable = XLSX.utils.table_to_book(
-        document.querySelectorAll(".el-table__body-wrapper > table")[0]
-      );
-      var writeTable = XLSX.write(targetTable, {
-        bookType: "xlsx",
+        document.querySelectorAll('.el-table__body-wrapper > table')[0],
+      )
+      const writeTable = XLSX.write(targetTable, {
+        bookType: 'xlsx',
         bookSST: true,
-        type: "array"
-      });
+        type: 'array',
+      })
       try {
         FileSaver.saveAs(
-          new Blob([writeTable], { type: "application/octet-stream" }),
-          `${fileName}.xlsx`
-        );
+          new Blob([writeTable], { type: 'application/octet-stream' }),
+          `${fileName}.xlsx`,
+        )
       } catch (e) {
-        if (typeof console !== "undefined") console.log(e, writeTable);
+        if (typeof console !== 'undefined') console.log(e, writeTable)
       }
-      return writeTable;
+      return writeTable
     },
     // 导出csv
-    exportCsv(fileName = "sheet") {
+    exportCsv(fileName = 'sheet') {
       const targetTable = XLSX.utils.table_to_book(
-        document.querySelectorAll(".el-table__body-wrapper > table")[0]
-      );
-      var writeTable = XLSX.write(targetTable, {
-        bookType: "csv",
+        document.querySelectorAll('.el-table__body-wrapper > table')[0],
+      )
+      const writeTable = XLSX.write(targetTable, {
+        bookType: 'csv',
         bookSST: true,
-        type: "array"
-      });
+        type: 'array',
+      })
       try {
         FileSaver.saveAs(
-          new Blob([writeTable], { type: "application/octet-stream" }),
-          `${fileName}.csv`
-        );
+          new Blob([writeTable], { type: 'application/octet-stream' }),
+          `${fileName}.csv`,
+        )
       } catch (e) {
-        if (typeof console !== "undefined") console.log(e, writeTable);
+        if (typeof console !== 'undefined') console.log(e, writeTable)
       }
-      return writeTable;
-    }
+      return writeTable
+    },
   },
 
   watch: {
@@ -469,34 +469,34 @@ export default {
     fixedLeftList() {
       this.filterTableColumn.map((item, index) => {
         if (this.fixedLeftList.indexOf(item.label) > -1) {
-          this.$set(this.filterTableColumn[index], "fixed", "left");
+          this.$set(this.filterTableColumn[index], 'fixed', 'left')
         } else if (this.fixedRightList.indexOf(item.label) === -1) {
-          this.$set(this.filterTableColumn[index], "fixed", false);
+          this.$set(this.filterTableColumn[index], 'fixed', false)
         }
-        return "";
-      });
-      console.log(this.filterTableColumn);
+        return ''
+      })
+      console.log(this.filterTableColumn)
     },
     fixedRightList() {
       this.filterTableColumn.map((item, index) => {
         if (this.fixedRightList.indexOf(item.label) > -1) {
-          this.$set(this.filterTableColumn[index], "fixed", "right");
+          this.$set(this.filterTableColumn[index], 'fixed', 'right')
         } else if (this.fixedLeftList.indexOf(item.label) === -1) {
-          this.$set(this.filterTableColumn[index], "fixed", false);
+          this.$set(this.filterTableColumn[index], 'fixed', false)
         }
-        return "";
-      });
-      console.log(this.filterTableColumn);
+        return ''
+      })
+      console.log(this.filterTableColumn)
     },
     editRow() {
       if (this.filterTableColumn[7]) {
         this.editRow === 0
-          ? this.$set(this.filterTableColumn[7], "width", 200)
-          : null;
+          ? this.$set(this.filterTableColumn[7], 'width', 200)
+          : null
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style lang="scss" scoped>

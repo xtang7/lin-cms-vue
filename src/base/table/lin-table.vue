@@ -56,84 +56,84 @@
 </template>
 
 <script>
-import FileSaver from "file-saver";
-import LinButton from "../button/lin-button";
+import FileSaver from 'file-saver'
+import LinButton from '../button/lin-button'
 
 export default {
   components: {
-    LinButton
+    LinButton,
   },
   props: {
     tableColumn: {
       // 表头名称
       type: Array,
-      default: () => []
+      default: () => [],
     },
     tableData: {
       // 表格数据
       type: Array,
-      default: () => []
+      default: () => [],
     },
     operate: {
       // 自定义按键及绑定方法
       type: Array,
-      default: () => []
+      default: () => [],
     },
     customColumn: {
       // 定制要展示的列
       type: Array,
-      default: () => []
+      default: () => [],
     },
     fixedLeftList: {
       // 左侧固定列
       type: Array,
-      default: () => []
+      default: () => [],
     },
     fixedRightList: {
       // 右侧固定列
       type: Array,
-      default: () => []
+      default: () => [],
     },
     type: {
       // 是否开启表格多选
       type: String,
-      default: null
+      default: null,
     },
     index: {
       // 是否显示索引
       index: String,
-      default: ""
+      default: '',
     },
     highlightCurrentRow: {
       // 是否开启表格单选
       type: Boolean,
-      default: false
+      default: false,
     },
     loading: {
       // 动画加载
       type: Boolean,
-      default: false
+      default: false,
     },
     loadingText: {
       // 动画提示
       type: String,
-      default: ""
+      default: '',
     },
     loadingIcon: {
       // 动画图标
       type: String,
-      default: "el-icon-loading"
+      default: 'el-icon-loading',
     },
     loadingBG: {
       // 动画背景色
       type: String,
-      default: "rgba(255,255,255,0.5)"
+      default: 'rgba(255,255,255,0.5)',
     },
     pagination: {
       // 分页
       type: [Object, Boolean],
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -145,218 +145,217 @@ export default {
       oldVal: [], // 上一次选中的数据
       oldKey: [], // 上一次选中数据的key
       currentIndex: 1, // 当前索引，切换页面的时候需要重新计算
-      rowClassName: "" // 行样式
-    };
+      rowClassName: '', // 行样式
+    }
   },
   created() {},
   beforeMount() {
     // 先放在session里，因为每次切换页码table都会重新渲染，之前选中都数据就丢失了  sessionstorage在create里面打包会提示undefined
-    sessionStorage.setItem("selectedTableData", JSON.stringify([]));
+    sessionStorage.setItem('selectedTableData', JSON.stringify([]))
   },
   methods: {
     // 开发者自定义的函数
     buttonMethods(func, index, row) {
-      const _this = this;
-      const { methods } = this.$options;
-      methods[func](_this, index, row);
+      const _this = this
+      const { methods } = this.$options
+      methods[func](_this, index, row)
     },
     // 行内编辑
     handleEdit(_this, index, row) {
-      _this.$emit("handleEdit", { index, row });
+      _this.$emit('handleEdit', { index, row })
     },
     // 行内删除
     handleDelete(_this, index, row) {
-      _this.$emit("handleDelete", { index, row });
+      _this.$emit('handleDelete', { index, row })
     },
 
     // 多选-选中checkbox
     toggleSelection(rows, flag) {
       if (rows) {
-        rows.forEach(row => {
-          this.$refs.linTable.toggleRowSelection(row, flag);
-        });
+        rows.forEach((row) => {
+          this.$refs.linTable.toggleRowSelection(row, flag)
+        })
       } else {
-        this.$refs.linTable.clearSelection();
+        this.$refs.linTable.clearSelection()
       }
     },
     // 全选-取消全选
     selectAll(val) {
-      this.oldKey = val.map(item => item.key);
+      this.oldKey = val.map(item => item.key)
     },
     // 单选
     handleCurrentChange(val, oldVal) {
-      this.currentRow = val;
-      this.$emit("handleCurrentChange", { val, oldVal });
+      this.currentRow = val
+      this.$emit('handleCurrentChange', { val, oldVal })
     },
     // 单击某一行
     rowClick(row, column, event) {
       // eslint-disable-line
       // 选中-多选
       if (!this.oldKey.includes(row.key)) {
-        this.oldKey.push(row.key);
-        const data = this.oldVal.concat(row);
-        this.handleSelectionChange(data);
+        this.oldKey.push(row.key)
+        const data = this.oldVal.concat(row)
+        this.handleSelectionChange(data)
         // 选中checkbox
         this.toggleSelection(
-          this.currentData.filter(item => item.key === row.key)
-        );
+          this.currentData.filter(item => item.key === row.key),
+        )
         // 取消选中
       } else {
-        this.oldKey = this.oldKey.filter(item => item !== row.key);
-        const data = this.oldVal.filter(item => item.key !== row.key);
-        this.handleSelectionChange(data);
+        this.oldKey = this.oldKey.filter(item => item !== row.key)
+        const data = this.oldVal.filter(item => item.key !== row.key)
+        this.handleSelectionChange(data)
         this.toggleSelection(
           this.currentData.filter(item => item.key === row.key),
-          false
-        );
+          false,
+        )
       }
       // 选中-单选
       if (this.currentOldRow && this.currentOldRow.key === row.key) {
         // 取消单选选中
-        this.$refs.linTable.setCurrentRow();
-        this.currentOldRow = null;
-        return;
+        this.$refs.linTable.setCurrentRow()
+        this.currentOldRow = null
+        return
       }
-      this.currentOldRow = row;
+      this.currentOldRow = row
     },
     // 切换当前页
     currentChange(page) {
-      const currentSelectedData = [];
-      this.oldVal = [];
-      this.currentPage = page;
+      const currentSelectedData = []
+      this.oldVal = []
+      this.currentPage = page
       this.selectedTableData = JSON.parse(
-        sessionStorage.getItem("selectedTableData")
-      );
+        sessionStorage.getItem('selectedTableData'),
+      )
       this.currentData = this.tableData.filter(
-        (item, index) =>
-          index >= (this.currentPage - 1) * this.pagination.pageSize &&
-          index < this.currentPage * this.pagination.pageSize
+        (item, index) => index >= (this.currentPage - 1) * this.pagination.pageSize
+          && index < this.currentPage * this.pagination.pageSize,
       ); // eslint-disable-line
-      this.$emit("currentChange", page);
+      this.$emit('currentChange', page)
       // 已选中的数据打勾
-      this.selectedTableData.forEach(item => {
+      this.selectedTableData.forEach((item) => {
         for (let i = 0; i < this.currentData.length; i++) {
           if (this.currentData[i].key === item.key) {
             // 切换页码重新计算oldVal
-            this.oldVal.push(this.currentData[i]);
+            this.oldVal.push(this.currentData[i])
             // 需要打勾的数据
-            currentSelectedData.push(this.currentData[i]);
+            currentSelectedData.push(this.currentData[i])
           }
         }
-      });
+      })
       this.$nextTick(() => {
-        this.toggleSelection(currentSelectedData);
-      });
+        this.toggleSelection(currentSelectedData)
+      })
       // 切换行索引
-      this.currentIndex = (this.currentPage - 1) * this.pagination.pageSize + 1;
+      this.currentIndex = (this.currentPage - 1) * this.pagination.pageSize + 1
     },
     // checkbox触发函数
     handleSelectionChange(val) {
-      const valKeys = val.map(item => item.key);
-      const oldValKeys = this.oldVal.map(item => item.key);
+      const valKeys = val.map(item => item.key)
+      const oldValKeys = this.oldVal.map(item => item.key)
       this.selectedTableData = JSON.parse(
-        sessionStorage.getItem("selectedTableData")
-      );
+        sessionStorage.getItem('selectedTableData'),
+      )
       // 一条数据都没选中
       if (this.selectedTableData.length === 0) {
-        this.selectedTableData = this.selectedTableData.concat(val);
-        this.$emit("selection-change", this.selectedTableData);
-        this.oldVal = [...val];
+        this.selectedTableData = this.selectedTableData.concat(val)
+        this.$emit('selection-change', this.selectedTableData)
+        this.oldVal = [...val]
         sessionStorage.setItem(
-          "selectedTableData",
-          JSON.stringify(this.selectedTableData)
-        );
-        return;
+          'selectedTableData',
+          JSON.stringify(this.selectedTableData),
+        )
+        return
       }
       // 判断是选中数据还是取消选中
       if (valKeys.length < oldValKeys.length) {
-        const delKey = oldValKeys.filter(item => !valKeys.includes(item));
+        const delKey = oldValKeys.filter(item => !valKeys.includes(item))
         this.selectedTableData = this.selectedTableData.filter(
-          item => !delKey.includes(item.key)
-        );
-        this.$emit("selection-change", this.selectedTableData);
+          item => !delKey.includes(item.key),
+        )
+        this.$emit('selection-change', this.selectedTableData)
       } else {
-        const addKey = valKeys.filter(item => !oldValKeys.includes(item));
-        const addVal = val.filter(item => addKey.includes(item.key));
-        this.selectedTableData = this.selectedTableData.concat(addVal);
-        this.$emit("selection-change", this.selectedTableData);
+        const addKey = valKeys.filter(item => !oldValKeys.includes(item))
+        const addVal = val.filter(item => addKey.includes(item.key))
+        this.selectedTableData = this.selectedTableData.concat(addVal)
+        this.$emit('selection-change', this.selectedTableData)
       }
 
       sessionStorage.setItem(
-        "selectedTableData",
-        JSON.stringify(this.selectedTableData)
-      );
-      this.oldVal = [...val];
+        'selectedTableData',
+        JSON.stringify(this.selectedTableData),
+      )
+      this.oldVal = [...val]
     },
     // 拖拽
     setDrag() {
       const el = document.querySelectorAll(
-        ".el-table__body-wrapper > table > tbody"
-      )[0];
-      let oldIndex;
-      let newIndex;
-      this.rowClassName = "rowClassName"; // 设置行样式，添加移动手势
+        '.el-table__body-wrapper > table > tbody',
+      )[0]
+      let oldIndex
+      let newIndex
+      this.rowClassName = 'rowClassName' // 设置行样式，添加移动手势
       this.sortable = Sortable.create(el, {
-        setData: function(dataTransfer) {
-          dataTransfer.setData("Text", "");
+        setData(dataTransfer) {
+          dataTransfer.setData('Text', '')
         },
-        onEnd: evt => {
-          const dragData = [...this.currentData];
-          let oldIndex;
-          let newIndex;
+        onEnd: (evt) => {
+          const dragData = [...this.currentData]
+          let oldIndex
+          let newIndex
           if (this.pagination) {
-            oldIndex = evt.oldIndex * this.currentPage;
-            newIndex = evt.newIndex * this.currentPage;
+            oldIndex = evt.oldIndex * this.currentPage
+            newIndex = evt.newIndex * this.currentPage
           } else {
-            oldIndex = evt.oldIndex;
-            newIndex = evt.newIndex;
+            oldIndex = evt.oldIndex
+            newIndex = evt.newIndex
           }
-          dragData[oldIndex] = this.currentData[newIndex];
-          dragData[newIndex] = this.currentData[oldIndex];
-          this.$emit("getDragData", { dragData, oldIndex, newIndex });
-        }
-      });
+          dragData[oldIndex] = this.currentData[newIndex]
+          dragData[newIndex] = this.currentData[oldIndex]
+          this.$emit('getDragData', { dragData, oldIndex, newIndex })
+        },
+      })
     },
     // 导出excel
-    exportExcel(fileName = "sheet") {
+    exportExcel(fileName = 'sheet') {
       const targetTable = XLSX.utils.table_to_book(
-        document.querySelectorAll(".el-table__body-wrapper > table")[0]
-      );
-      var writeTable = XLSX.write(targetTable, {
-        bookType: "xlsx",
+        document.querySelectorAll('.el-table__body-wrapper > table')[0],
+      )
+      const writeTable = XLSX.write(targetTable, {
+        bookType: 'xlsx',
         bookSST: true,
-        type: "array"
-      });
+        type: 'array',
+      })
       try {
         FileSaver.saveAs(
-          new Blob([writeTable], { type: "application/octet-stream" }),
-          `${fileName}.xlsx`
-        );
+          new Blob([writeTable], { type: 'application/octet-stream' }),
+          `${fileName}.xlsx`,
+        )
       } catch (e) {
-        if (typeof console !== "undefined") console.log(e, writeTable);
+        if (typeof console !== 'undefined') console.log(e, writeTable)
       }
-      return writeTable;
+      return writeTable
     },
     // 导出csv
-    exportCsv(fileName = "sheet") {
+    exportCsv(fileName = 'sheet') {
       const targetTable = XLSX.utils.table_to_book(
-        document.querySelectorAll(".el-table__body-wrapper > table")[0]
-      );
-      var writeTable = XLSX.write(targetTable, {
-        bookType: "csv",
+        document.querySelectorAll('.el-table__body-wrapper > table')[0],
+      )
+      const writeTable = XLSX.write(targetTable, {
+        bookType: 'csv',
         bookSST: true,
-        type: "array"
-      });
+        type: 'array',
+      })
       try {
         FileSaver.saveAs(
-          new Blob([writeTable], { type: "application/octet-stream" }),
-          `${fileName}.csv`
-        );
+          new Blob([writeTable], { type: 'application/octet-stream' }),
+          `${fileName}.csv`,
+        )
       } catch (e) {
-        if (typeof console !== "undefined") console.log(e, writeTable);
+        if (typeof console !== 'undefined') console.log(e, writeTable)
       }
-      return writeTable;
-    }
+      return writeTable
+    },
   },
   watch: {
     fixedLeftList: {
@@ -364,41 +363,41 @@ export default {
         // eslint-disable-line
         this.filterTableColumn.map((item, index) => {
           if (this.fixedLeftList.indexOf(item.label) > -1) {
-            this.$set(this.filterTableColumn[index], "fixed", "left");
+            this.$set(this.filterTableColumn[index], 'fixed', 'left')
           } else if (this.fixedRightList.indexOf(item.label) === -1) {
-            this.$set(this.filterTableColumn[index], "fixed", false);
+            this.$set(this.filterTableColumn[index], 'fixed', false)
           }
-          return "";
-        });
+          return ''
+        })
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
     fixedRightList: {
       handler(val, oldVal) {
         // eslint-disable-line
         this.filterTableColumn.map((item, index) => {
           if (this.fixedRightList.indexOf(item.label) > -1) {
-            this.$set(this.filterTableColumn[index], "fixed", "right");
+            this.$set(this.filterTableColumn[index], 'fixed', 'right')
           } else if (this.fixedLeftList.indexOf(item.label) === -1) {
-            this.$set(this.filterTableColumn[index], "fixed", false);
+            this.$set(this.filterTableColumn[index], 'fixed', false)
           }
-          return "";
-        });
+          return ''
+        })
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
     customColumn: {
       handler(val, oldVal) {
         // eslint-disable-line
         if (val.length > 1) {
           this.filterTableColumn = this.tableColumn.filter(
-            v => val.indexOf(v.label) > -1
-          );
+            v => val.indexOf(v.label) > -1,
+          )
         }
       },
-      deep: true
+      deep: true,
     },
     tableData: {
       handler(val, oldVal) {
@@ -406,14 +405,14 @@ export default {
         // 传了分页配置
         if (this.pagination && this.pagination.pageSize) {
           this.currentData = this.tableData.filter(
-            (item, index) => index < this.pagination.pageSize
+            (item, index) => index < this.pagination.pageSize,
           ); // eslint-disable-line
         } else {
-          this.currentData = this.tableData;
+          this.currentData = this.tableData
         }
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
     tableColumn: {
       handler(val, oldVal) {
@@ -421,17 +420,17 @@ export default {
         // 如果一开始没有传要展示的列 就默认全展示
         if (this.customColumn.length > 1) {
           this.filterTableColumn = this.tableColumn.filter(
-            v => this.customColumn.indexOf(v.label) > -1
-          );
+            v => this.customColumn.indexOf(v.label) > -1,
+          )
         } else {
-          this.filterTableColumn = this.tableColumn;
+          this.filterTableColumn = this.tableColumn
         }
       },
       deep: true,
-      immediate: true
-    }
-  }
-};
+      immediate: true,
+    },
+  },
+}
 </script>
 
 <style lang="scss" scoped>

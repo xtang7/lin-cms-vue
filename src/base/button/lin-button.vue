@@ -14,73 +14,74 @@
   </button>
 </template>
 <script>
-import LIcon from "../icon/LIcon";
+import LIcon from '../icon/LIcon'
+
 export default {
-  name: "LinButton",
+  name: 'LinButton',
   components: {
-    "l-icon": LIcon
+    'l-icon': LIcon,
   },
   props: {
     type: {
       type: String,
-      default: "default"
+      default: 'default',
     },
     plain: {
       type: Boolean,
-      default: false
+      default: false,
     },
     circle: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     icon: {
       type: String,
-      default: ""
+      default: '',
     },
     loading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     iconPosition: {
       type: String,
-      default: "left",
+      default: 'left',
       validator(value) {
-        return value === "left" || value === "right";
-      }
-    }
+        return value === 'left' || value === 'right'
+      },
+    },
   },
   data() {
     return {
-      ripple: true
-    };
+      ripple: true,
+    }
   },
   mounted() {
-    this.disabled ? (this.ripple = false) : (this.ripple = true);
+    this.disabled ? (this.ripple = false) : (this.ripple = true)
   },
   methods: {
     onClick() {
       if (this.disabled) {
-        return;
+
       } else {
-        this.$emit("click");
+        this.$emit('click')
       }
     },
     mouseover() {
       if (this.$refs.icon) {
-        this.$refs.icon.mouseover();
+        this.$refs.icon.mouseover()
       }
     },
     mouseout() {
       if (this.$refs.icon) {
-        this.$refs.icon.mouseout();
+        this.$refs.icon.mouseout()
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
 <style lang="scss" scoped>
 @import "./button.scss";
