@@ -3,7 +3,8 @@ node_modules
 /dist
 /script/.cache
 
-# local env files
+# local env files just changed some shit
+
 .env.local
 .env.*.local
 
